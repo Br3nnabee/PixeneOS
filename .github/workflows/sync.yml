@@ -19,8 +19,19 @@ jobs:
           git remote add upstream https://github.com/pixincreate/PixeneOS.git
           git fetch upstream
 
-          # Try to merge. If it fails due to the Renovate file, force-remove them.
+          # Try to merge.
           git merge upstream/main --allow-unrelated-histories -m "Auto-sync" || \
-          (git rm --ignore-unmatch .github/workflows/renovate.yml .github/renovate.json5 && git commit -m "Auto-resolve renovate conflict")
+          (
+            # Manually resolve the modify/delete conflict by removing the files from the index
+            git rm --cached -f .github/workflows/renovate.yml || true
+            git rm --cached -f renovate.json5 || true
+            
+            # Remove them from the working directory if they were recreated
+            rm -f .github/workflows/renovate.yml .github/renovate.json5
+            
+            # Finalize the merge commit
+            git add .
+            git commit -m "Auto-resolve renovate conflict by removing upstream renovate files"
+          )
 
           git push origin main
