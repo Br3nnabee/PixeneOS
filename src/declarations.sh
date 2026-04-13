@@ -24,6 +24,7 @@ WORKDIR=".tmp"
 DOMAIN="https://github.com"
 REPOSITORY="PixeneOS" # GitHub repository name
 USER="Br3nnabee"      # GitHub username
+MAGISK_USER="pixincreate"
 
 # Application version variables
 VERSION[AFSR]="${VERSION[AFSR]:-1.0.4}"
@@ -39,7 +40,7 @@ VERSION[OEMUNLOCKONBOOT]="${VERSION[OEMUNLOCKONBOOT]:-1.3}"
 
 # Magisk
 MAGISK[PREINIT]="${MAGISK_PREINIT:-}"
-MAGISK[REPOSITORY]="${USER}/Magisk"
+MAGISK[REPOSITORY]="${MAGISK_USER}/Magisk"
 MAGISK[URL]="${DOMAIN}/${MAGISK[REPOSITORY]}"
 
 # Keys
