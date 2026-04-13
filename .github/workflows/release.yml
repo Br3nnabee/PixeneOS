@@ -185,7 +185,7 @@ jobs:
         env:
           ADDITIONALS_ROOT: ${{ github.event.inputs.root }}
           CLEANUP: true
-          MAGISK_PREINIT: ${{ github.event.inputs.magisk-preinit-device }}
+          MAGISK_PREINIT: ${{ github.event.inputs.magisk-preinit-device || 'sda10' }}
           PASSPHRASE_AVB: ${{ secrets.PASSPHRASE_AVB }}
           PASSPHRASE_OTA: ${{ secrets.PASSPHRASE_OTA }}
         run: |
