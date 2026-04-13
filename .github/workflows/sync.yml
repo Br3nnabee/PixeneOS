@@ -8,13 +8,14 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # To push commits
-      workflows: write # To update/sync workflow files
+      contents: write
+      workflows: write
     steps:
       - name: Checkout target repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Merge Upstream
         run: |
           git config user.name "GitHub Action"
@@ -25,12 +26,13 @@ jobs:
           # Try to merge.
           git merge upstream/main --allow-unrelated-histories -m "Auto-sync" || \
           (
-            # Manually resolve the modify/delete conflict by removing the files from the index
+            # Remove from index (staging)
             git rm --cached -f .github/workflows/renovate.yml || true
             git rm --cached -f renovate.json5 || true
+            git rm --cached -f .github/renovate.json5 || true
             
-            # Remove them from the working directory if they were recreated
-            rm -f .github/workflows/renovate.yml .github/renovate.json5
+            # Remove from physical disk
+            rm -f .github/workflows/renovate.yml renovate.json5 .github/renovate.json5
             
             # Finalize the merge commit
             git add .
