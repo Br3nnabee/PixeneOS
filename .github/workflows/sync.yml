@@ -21,6 +21,6 @@ jobs:
 
           # Try to merge. If it fails due to the Renovate file, force-remove them.
           git merge upstream/main --allow-unrelated-histories -m "Auto-sync" || \
-          (git rm --ignore-unmatch .github/workflows/renovate.yml renovate.json5 && git commit -m "Auto-resolve renovate conflict")
+          (git rm --ignore-unmatch .github/workflows/renovate.yml .github/renovate.json5 && git commit -m "Auto-resolve renovate conflict")
 
           git push origin main
