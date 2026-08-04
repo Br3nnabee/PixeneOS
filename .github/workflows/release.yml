@@ -126,8 +126,8 @@ jobs:
             done
 
             if [ ${#missing_assets[@]} -eq 0 ]; then
-              echo -e "::error::All required assets are present. Exiting..."
-              exit 1
+              echo -e "All required assets are already present. Skipping build."
+              echo "BUILD_EXISTS=true" >> $GITHUB_ENV
             else
               echo -e "Missing assets:"
               for missing_asset in "${missing_assets[@]}"; do
@@ -146,35 +146,42 @@ jobs:
               # Check if valid_build is either "magisk" or "rootless"
               if [[ "$valid_build" == "magisk" ]] || [[ "$valid_build" == "rootless" ]]; then
                 echo -e "Proceeding with build to create missing assets..."
+                echo "BUILD_EXISTS=false" >> $GITHUB_ENV
               else
-                echo -e "::error::Asset with \`$build_flavor\` flavor already exists!"
-                exit 1
+                echo -e "Asset with \`$build_flavor\` flavor already exists. Skipping build."
+                echo "BUILD_EXISTS=true" >> $GITHUB_ENV
               fi
             fi
           else
             echo -e "Tag with GrapheneOS version $GRAPHENEOS_VERSION does not exist. Creating one..."
+            echo "BUILD_EXISTS=false" >> $GITHUB_ENV
           fi
 
       - name: Setup Git
+        if: env.BUILD_EXISTS != 'true'
         run: |
           # Configure git for pushing changes
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
       - name: Install Rust stable
+        if: env.BUILD_EXISTS != 'true'
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable 2 weeks ago
 
       - name: Build and Cache Rust Dependencies
+        if: env.BUILD_EXISTS != 'true'
         uses: Swatinem/rust-cache@v2.9.1
 
       - name: Install Python
+        if: env.BUILD_EXISTS != 'true'
         uses: actions/setup-python@v7
         with:
           python-version: "3.12-dev"
 
       - name: Setup Environment variables
+        if: env.BUILD_EXISTS != 'true'
         run: |
           echo "KEYS_AVB_BASE64<<EOF" >> $GITHUB_ENV
           echo "${{ secrets.AVB_KEY }}" >> $GITHUB_ENV
@@ -187,6 +194,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Patch OTA
+        if: env.BUILD_EXISTS != 'true'
         shell: bash
         env:
           ADDITIONALS_ROOT: ${{ github.event.inputs.root }}
@@ -207,13 +215,14 @@ jobs:
           echo "WORKDIR=${WORKDIR}" >> $GITHUB_ENV
 
       - name: Generate Changelog
+        if: env.BUILD_EXISTS != 'true'
         run: |
           # Generate a changelog for the release taking the latest GrapheneOS release
           echo -e "See [Changelog](https://grapheneos.org/releases#${{ env.GRAPHENEOS_VERSION }})." > ${{ github.workspace }}-CHANGELOG.txt
 
       - name: Make Release
         uses: softprops/action-gh-release@v3
-        if: github.event.inputs.release-type != 'build-only'
+        if: env.BUILD_EXISTS != 'true' && github.event.inputs.release-type != 'build-only'
         with:
           body_path: ${{ github.workspace }}-CHANGELOG.txt
           files: |
@@ -224,7 +233,7 @@ jobs:
 
       - name: Publish OTA to server
         shell: bash
-        if: github.event.inputs.release-type != 'build-only'
+        if: env.BUILD_EXISTS != 'true' && github.event.inputs.release-type != 'build-only'
         run: |
           CURRENT_COMMIT=$(git rev-parse --short HEAD)
           FLAVOR=("magisk" "rootless")
