@@ -171,8 +171,12 @@ jobs:
           toolchain: stable 2 weeks ago
 
       - name: Build and Cache Rust Dependencies
+<<<<<<< HEAD
         if: env.BUILD_EXISTS != 'true'
         uses: Swatinem/rust-cache@v2.9.1
+=======
+        uses: Swatinem/rust-cache@v2.9.2
+>>>>>>> upstream/main
 
       - name: Install Python
         if: env.BUILD_EXISTS != 'true'
