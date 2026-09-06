@@ -31,11 +31,32 @@ on:
           - force-publish
         default: default
 
+  # Allows this workflow to be called per device, see multi-release.yml
+  workflow_call:
+    inputs:
+      device-id:
+        required: true
+        type: string
+      root:
+        required: false
+        type: boolean
+        default: false
+      magisk-preinit-device:
+        required: false
+        type: string
+      update-channel:
+        required: false
+        type: string
+      release-type:
+        required: false
+        type: string
+        default: default
+
 env:
   CARGO_INCREMENTAL: 1
-  DEVICE_NAME: ${{ github.event.inputs.device-id }}
+  DEVICE_NAME: ${{ inputs.device-id }}
   INTERACTIVE_MODE: false
-  GRAPHENEOS_UPDATE_CHANNEL: ${{ github.event.inputs.update-channel }}
+  GRAPHENEOS_UPDATE_CHANNEL: ${{ inputs.update-channel }}
   RUST_BACKTRACE: short
   RUSTUP_MAX_RETRIES: 10
 
@@ -50,8 +71,8 @@ jobs:
       - name: Check if `magisk-preinit-device` is set when `root` is true
         run: |
           # Convert inputs to proper boolean values
-          root=${{ github.event.inputs.root }}
-          magisk_preinit_device=${{ github.event.inputs.magisk-preinit-device }}
+          root="${{ inputs.root }}"
+          magisk_preinit_device="${{ inputs.magisk-preinit-device }}"
 
           # Ensure that the boolean comparison is correctly handled
           if [ "$root" == "true" ] && [ -z "$magisk_preinit_device" ]; then
@@ -73,6 +94,7 @@ jobs:
 
           echo "DEVICE_NAME=${DEVICE_NAME}" >> $GITHUB_ENV
           echo "GRAPHENEOS_UPDATE_CHANNEL=${GRAPHENEOS[UPDATE_CHANNEL]}" >> $GITHUB_ENV
+          echo "FORCE_UPDATE=${FORCE_UPDATE:-false}" >> $GITHUB_ENV
 
       - name: Set GrapheneOS version
         shell: bash
@@ -89,6 +111,7 @@ jobs:
 
       - name: Check if a build exists already and verify assets
         shell: bash
+<<<<<<< HEAD
         if: github.event_name == 'schedule' || github.event.inputs.release-type == 'default'
         run: |
           # Determine if the build is based on magisk or rootless (build flavor)
@@ -156,6 +179,13 @@ jobs:
             echo -e "Tag with GrapheneOS version $GRAPHENEOS_VERSION does not exist. Creating one..."
             echo "BUILD_EXISTS=false" >> $GITHUB_ENV
           fi
+=======
+        if: github.event_name == 'schedule' || inputs.release-type == 'default'
+        env:
+          REPOSITORY: ${{ github.repository }}
+          ROOT: ${{ inputs.root }}
+        run: src/ci/check_existing_build.sh
+>>>>>>> upstream/main
 
       - name: Setup Git
         if: env.BUILD_EXISTS != 'true'
@@ -201,9 +231,13 @@ jobs:
         if: env.BUILD_EXISTS != 'true'
         shell: bash
         env:
-          ADDITIONALS_ROOT: ${{ github.event.inputs.root }}
+          ADDITIONALS_ROOT: ${{ inputs.root }}
           CLEANUP: true
+<<<<<<< HEAD
           MAGISK_PREINIT: ${{ github.event.inputs.magisk-preinit-device || 'sda10' }}
+=======
+          MAGISK_PREINIT: ${{ inputs.magisk-preinit-device }}
+>>>>>>> upstream/main
           PASSPHRASE_AVB: ${{ secrets.PASSPHRASE_AVB }}
           PASSPHRASE_OTA: ${{ secrets.PASSPHRASE_OTA }}
         run: |
@@ -226,7 +260,11 @@ jobs:
 
       - name: Make Release
         uses: softprops/action-gh-release@v3
+<<<<<<< HEAD
         if: env.BUILD_EXISTS != 'true' && github.event.inputs.release-type != 'build-only'
+=======
+        if: inputs.release-type != 'build-only'
+>>>>>>> upstream/main
         with:
           body_path: ${{ github.workspace }}-CHANGELOG.txt
           files: |
@@ -235,8 +273,18 @@ jobs:
           name: "${{ env.GRAPHENEOS_VERSION }}"
           tag_name: "${{ env.GRAPHENEOS_VERSION }}"
 
+      - name: Remove superseded release assets
+        shell: bash
+        if: env.FORCE_REBUILD == 'true' && inputs.release-type != 'build-only'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          ROOT: ${{ inputs.root }}
+        run: src/ci/remove_superseded_assets.sh
+
       - name: Publish OTA to server
         shell: bash
+<<<<<<< HEAD
         if: env.BUILD_EXISTS != 'true' && github.event.inputs.release-type != 'build-only'
         run: |
           CURRENT_COMMIT=$(git rev-parse --short HEAD)
@@ -282,3 +330,10 @@ jobs:
 
           # Switch back to main branch
           git checkout main
+=======
+        if: inputs.release-type != 'build-only'
+        env:
+          RELEASE_TYPE: ${{ inputs.release-type }}
+          ROOT: ${{ inputs.root }}
+        run: src/ci/publish_ota.sh
+>>>>>>> upstream/main
