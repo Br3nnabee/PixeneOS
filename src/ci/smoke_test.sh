@@ -14,7 +14,8 @@ function check_url() {
   local url="${2}"
   local status
 
-  status=$(curl -sIL -o /dev/null -w '%{http_code}' "${url}")
+  # `|| true` keeps errexit from ending the run, a failed request reports as 000
+  status=$(curl -sIL --max-time 30 --retry 2 -o /dev/null -w '%{http_code}' "${url}" || true)
   if [[ "${status}" == "200" ]]; then
     echo "ok   ${name}: ${url}"
   else
@@ -42,8 +43,8 @@ for tool in "${tools_array[@]}"; do
   check_url "${tool}.sig" "${SIGNATURE_URL}"
 done
 
-# Magisk APK from the fork's latest tag
-check_url "magisk" "${MAGISK[URL]}/releases/download/${VERSION[MAGISK]}/Magisk-${VERSION[MAGISK]}.apk"
+# Magisk APK from the latest tag of the configured repository
+check_url "magisk" "${DOMAIN}/${MAGISK[REPOSITORY]}/releases/download/${VERSION[MAGISK]}/Magisk-${VERSION[MAGISK]}.apk"
 
 # GrapheneOS OTA for the configured device
 check_url "grapheneos-ota" "${GRAPHENEOS[OTA_URL]}"
