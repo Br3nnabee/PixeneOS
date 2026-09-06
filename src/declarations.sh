@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
+source src/logger.sh
+
 # Declare associative arrays and variables
-# shellcheck disable=SC2034  # the variables are used by the scripts that source this file
 declare -A ADDITIONALS
-declare -A AVBROOT
 declare -A GRAPHENEOS
 declare -A KEYS
 declare -A MAGISK
@@ -11,9 +11,9 @@ declare -A OUTPUTS
 declare -A VERSION
 
 # Build Specifications
-ARCH="x86_64-unknown-linux-gnu" # for Linux
-# ARCH="universal-apple-darwin" # for macOS
-# ARCH="x86_64-pc-windows-msvc" # for Windows
+# `x86_64-unknown-linux-gnu` for Linux, `universal-apple-darwin` for macOS,
+# `x86_64-pc-windows-msvc` for Windows. Override in env.toml.
+ARCH="${ARCH:-x86_64-unknown-linux-gnu}"
 
 # Initial setup environment variables
 CLEANUP="${CLEANUP:-false}"                  # Clean up after the script finishes
@@ -22,10 +22,10 @@ FORCE_UPDATE="${FORCE_UPDATE:-false}"        # Rebuild the current release when 
 INTERACTIVE_MODE="${INTERACTIVE_MODE:-true}" # Enable interactive mode
 WORKDIR=".tmp"
 
-# GitHub variables
+# GitHub variables. Override GITHUB_USER and GITHUB_REPO in env.toml for forks.
 DOMAIN="https://github.com"
-REPOSITORY="PixeneOS" # GitHub repository name
-USER="pixincreate"    # GitHub username
+GITHUB_REPO="${GITHUB_REPO:-PixeneOS}"    # GitHub repository name
+GITHUB_USER="${GITHUB_USER:-pixincreate}" # GitHub username
 
 # Application version variables
 VERSION[AFSR]="${VERSION[AFSR]:-2.0.0}"
@@ -41,8 +41,9 @@ VERSION[OEMUNLOCKONBOOT]="${VERSION[OEMUNLOCKONBOOT]:-1.4}"
 
 # Magisk
 MAGISK[PREINIT]="${MAGISK_PREINIT:-}"
-MAGISK[REPOSITORY]="${USER}/Magisk"
-MAGISK[URL]="${DOMAIN}/${MAGISK[REPOSITORY]}"
+# The default fork carries Zygisk fixes for GrapheneOS.
+# Set to `topjohnwu/Magisk` for upstream Magisk.
+MAGISK[REPOSITORY]="${MAGISK_REPOSITORY:-pixincreate/Magisk}"
 
 # Keys
 KEYS[AVB]="${KEYS[AVB]:-avb.key}"
