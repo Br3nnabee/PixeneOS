@@ -247,11 +247,16 @@ jobs:
           CLEANUP: true
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           MAGISK_PREINIT: ${{ github.event.inputs.magisk-preinit-device || 'sda10' }}
 =======
           MAGISK_PREINIT: ${{ inputs.magisk-preinit-device }}
 >>>>>>> upstream/main
 =======
+=======
+          GITHUB_REPO: ${{ github.event.repository.name }}
+          GITHUB_USER: ${{ github.repository_owner }}
+>>>>>>> upstream/main
           MAGISK_PREINIT: ${{ inputs.magisk-preinit-device || env.MAGISK_PREINIT }}
 >>>>>>> upstream/main
           PASSPHRASE_AVB: ${{ secrets.PASSPHRASE_AVB }}
