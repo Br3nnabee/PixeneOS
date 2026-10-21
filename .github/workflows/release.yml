@@ -214,10 +214,14 @@ jobs:
 
       - name: Build and Cache Rust Dependencies
 <<<<<<< HEAD
+<<<<<<< HEAD
         if: env.BUILD_EXISTS != 'true'
         uses: Swatinem/rust-cache@v2.9.1
 =======
         uses: Swatinem/rust-cache@v2.9.2
+>>>>>>> upstream/main
+=======
+        uses: Swatinem/rust-cache@v2.9.3
 >>>>>>> upstream/main
 
       - name: Install Python
