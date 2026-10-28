@@ -24,14 +24,8 @@ WORKDIR=".tmp"
 
 # GitHub variables. Override GITHUB_USER and GITHUB_REPO in env.toml for forks.
 DOMAIN="https://github.com"
-<<<<<<< HEAD
-REPOSITORY="PixeneOS" # GitHub repository name
-USER="Br3nnabee"      # GitHub username
-MAGISK_USER="pixincreate"
-=======
-GITHUB_REPO="${GITHUB_REPO:-PixeneOS}"    # GitHub repository name
-GITHUB_USER="${GITHUB_USER:-pixincreate}" # GitHub username
->>>>>>> upstream/main
+GITHUB_REPO="${GITHUB_REPO:-PixeneOS}"   # GitHub repository name
+GITHUB_USER="${GITHUB_USER:-Br3nnabee}"  # GitHub username
 
 # Application version variables
 VERSION[AFSR]="${VERSION[AFSR]:-2.0.0}"
@@ -47,14 +41,10 @@ VERSION[OEMUNLOCKONBOOT]="${VERSION[OEMUNLOCKONBOOT]:-1.4}"
 
 # Magisk
 MAGISK[PREINIT]="${MAGISK_PREINIT:-}"
-<<<<<<< HEAD
-MAGISK[REPOSITORY]="${MAGISK_USER}/Magisk"
-MAGISK[URL]="${DOMAIN}/${MAGISK[REPOSITORY]}"
-=======
 # The default fork carries Zygisk fixes for GrapheneOS.
 # Set to `topjohnwu/Magisk` for upstream Magisk.
 MAGISK[REPOSITORY]="${MAGISK_REPOSITORY:-pixincreate/Magisk}"
->>>>>>> upstream/main
+MAGISK[URL]="${DOMAIN}/${MAGISK[REPOSITORY]}"
 
 # Keys
 KEYS[AVB]="${KEYS[AVB]:-avb.key}"
