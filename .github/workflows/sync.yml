@@ -24,19 +24,23 @@ jobs:
           git fetch upstream
 
           # Try to merge.
-          git merge upstream/main --allow-unrelated-histories -m "Auto-sync" || \
-          (
-            # Remove from index (staging)
-            git rm --cached -f .github/workflows/renovate.yml || true
-            git rm --cached -f renovate.json5 || true
-            git rm --cached -f .github/renovate.json5 || true
-            
-            # Remove from physical disk
-            rm -f .github/workflows/renovate.yml renovate.json5 .github/renovate.json5
-            
-            # Finalize the merge commit
-            git add .
-            git commit -m "Auto-resolve renovate conflict by removing upstream renovate files"
-          )
+          if ! git merge upstream/main --allow-unrelated-histories --no-edit -m "Auto-sync"; then
+            # This fork does not use upstream's Renovate setup. Deleting the files
+            # also settles modify/delete conflicts on them.
+            git rm -q -f --ignore-unmatch \
+              .github/workflows/renovate.yml renovate.json5 .github/renovate.json5
+
+            # Any other conflict needs a human. Never commit conflict markers:
+            # fail the run and leave main untouched instead.
+            unresolved=$(git diff --name-only --diff-filter=U)
+            if [ -n "${unresolved}" ]; then
+              echo "::error::Upstream sync has unresolved conflicts, resolve them manually:"
+              echo "${unresolved}"
+              git merge --abort
+              exit 1
+            fi
+
+            git commit --no-edit -m "Auto-resolve renovate conflict by removing upstream renovate files"
+          fi
 
           git push origin main
