@@ -1,7 +1,7 @@
 {
   "version": 2,
   "full": {
-    "location_ota": "https://github.com/Br3nnabee/PixeneOS/releases/download/2026070500/tegu-2026070500-magisk-v30.7-7a474cc.zip",
-    "location_csig": "https://github.com/Br3nnabee/PixeneOS/releases/download/2026070500/tegu-2026070500-magisk-v30.7-7a474cc.zip.csig"
+    "location_ota": "https://github.com/Br3nnabee/PixeneOS/releases/download/2026102100/tegu-2026102100-magisk-v31.1-20a386a.zip",
+    "location_csig": "https://github.com/Br3nnabee/PixeneOS/releases/download/2026102100/tegu-2026102100-magisk-v31.1-20a386a.zip.csig"
   }
 }
